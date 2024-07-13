@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
@@ -21,6 +22,11 @@ const Popup = dynamic(
 
 export default function MapView({ catches }) {
   const [activeMarker, setActiveMarker] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
 
   if (typeof window === 'undefined') {
     return null; // Return null on server-side
@@ -29,6 +35,10 @@ export default function MapView({ catches }) {
   const center = catches.length > 0
     ? [catches[0].latitude, catches[0].longitude]
     : [0, 0];
+
+  if (isLoading) {
+    return <Skeleton className="w-full h-[400px]" />;
+  }
 
   return (
     <div style={{ height: '400px', width: '100%' }}>
