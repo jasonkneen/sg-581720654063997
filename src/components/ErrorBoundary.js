@@ -1,9 +1,11 @@
 import React from 'react';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
   static getDerivedStateFromError(error) {
@@ -11,16 +13,30 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.log('Error:', error, errorInfo);
+    this.setState({ error, errorInfo });
+    console.error("Caught an error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <strong className="font-bold">Oops!</strong>
-          <span className="block sm:inline"> Something went wrong. Please try again later.</span>
-        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            <p>Something went wrong. Please try again later.</p>
+            {process.env.NODE_ENV === 'development' && (
+              <details className="mt-2 text-xs">
+                <summary>Error Details</summary>
+                <pre className="mt-2 whitespace-pre-wrap">
+                  {this.state.error && this.state.error.toString()}
+                  <br />
+                  {this.state.errorInfo && this.state.errorInfo.componentStack}
+                </pre>
+              </details>
+            )}
+          </AlertDescription>
+        </Alert>
       );
     }
 

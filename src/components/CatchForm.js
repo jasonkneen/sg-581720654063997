@@ -17,6 +17,8 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState([]);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
   const [currentTag, setCurrentTag] = useState('');
   const [errors, setErrors] = useState({});
   const [openTagsPopover, setOpenTagsPopover] = useState(false);
@@ -27,6 +29,8 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
       setLocation(editingCatch.location);
       setDescription(editingCatch.description);
       setTags(editingCatch.tags);
+      setLatitude(editingCatch.latitude || '');
+      setLongitude(editingCatch.longitude || '');
     }
   }, [editingCatch]);
 
@@ -59,6 +63,8 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
     if (!location.trim()) newErrors.location = 'Location is required';
     if (!description.trim()) newErrors.description = 'Description is required';
     if (tags.length === 0) newErrors.tags = 'At least one tag is required';
+    if (!latitude.trim()) newErrors.latitude = 'Latitude is required';
+    if (!longitude.trim()) newErrors.longitude = 'Longitude is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -72,6 +78,8 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
         location,
         description,
         tags,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
         date: editingCatch ? editingCatch.date : new Date().toISOString(),
       };
       if (editingCatch) {
@@ -88,6 +96,8 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
     setLocation('');
     setDescription('');
     setTags([]);
+    setLatitude('');
+    setLongitude('');
     setCurrentTag('');
     setErrors({});
     setEditingCatch(null);
@@ -128,6 +138,30 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
           placeholder="Enter location"
         />
         {errors.location && <p className="text-destructive text-sm mt-1">{errors.location}</p>}
+      </div>
+      <div>
+        <Label htmlFor="latitude">Latitude</Label>
+        <Input
+          id="latitude"
+          value={latitude}
+          onChange={(e) => setLatitude(e.target.value)}
+          placeholder="Enter latitude"
+          type="number"
+          step="any"
+        />
+        {errors.latitude && <p className="text-destructive text-sm mt-1">{errors.latitude}</p>}
+      </div>
+      <div>
+        <Label htmlFor="longitude">Longitude</Label>
+        <Input
+          id="longitude"
+          value={longitude}
+          onChange={(e) => setLongitude(e.target.value)}
+          placeholder="Enter longitude"
+          type="number"
+          step="any"
+        />
+        {errors.longitude && <p className="text-destructive text-sm mt-1">{errors.longitude}</p>}
       </div>
       <div>
         <Label htmlFor="description">Description</Label>
