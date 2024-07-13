@@ -7,6 +7,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import Statistics from '@/components/Statistics';
 import SearchBar from '@/components/SearchBar';
 import DateRangeFilter from '@/components/DateRangeFilter';
+import ExportButton from '@/components/ExportButton';
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -83,7 +84,10 @@ export default function Home() {
     >
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold text-center">Fishing Catch Logger</h1>
-        <ThemeToggle />
+        <div className="flex items-center space-x-4">
+          <ExportButton catches={catches} />
+          <ThemeToggle />
+        </div>
       </div>
       <ErrorBoundary>
         <Statistics catches={catches} />
