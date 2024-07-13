@@ -1,24 +1,39 @@
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import CatchForm from '@/components/CatchForm';
+import CatchList from '@/components/CatchList';
 
 export default function Home() {
+  const [catches, setCatches] = useState([]);
+
+  useEffect(() => {
+    const savedCatches = localStorage.getItem('fishingCatches');
+    if (savedCatches) {
+      setCatches(JSON.parse(savedCatches));
+    }
+  }, []);
+
+  const addCatch = (newCatch) => {
+    const updatedCatches = [...catches, newCatch];
+    setCatches(updatedCatches);
+    localStorage.setItem('fishingCatches', JSON.stringify(updatedCatches));
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to your App
-        </h1>
-
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
-
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <Button className="mt-4">Hello World</Button>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Fishing Catch Logger</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Log a New Catch</h2>
+          <CatchForm onAddCatch={addCatch} />
         </div>
-      </main>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Your Catches</h2>
+          <CatchList catches={catches} />
+        </div>
+      </div>
     </div>
-  )
+  );
 }
