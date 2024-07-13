@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { X, Upload } from "lucide-react";
+import { X, Upload, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useToast } from "@/components/ui/use-toast";
 
 const commonTags = ['Bass', 'Trout', 'Salmon', 'Catfish', 'Pike', 'Perch', 'Carp', 'Sunny', 'Rainy', 'Lakeshore', 'River', 'Ocean'];
 
@@ -22,6 +23,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
   const [currentTag, setCurrentTag] = useState('');
   const [errors, setErrors] = useState({});
   const [openTagsPopover, setOpenTagsPopover] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (editingCatch) {
@@ -84,8 +86,16 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
       };
       if (editingCatch) {
         onUpdateCatch(catchData);
+        toast({
+          title: "Catch updated",
+          description: "Your catch has been successfully updated.",
+        });
       } else {
         onAddCatch(catchData);
+        toast({
+          title: "Catch added",
+          description: "Your catch has been successfully logged.",
+        });
       }
       resetForm();
     }
@@ -101,6 +111,42 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
     setCurrentTag('');
     setErrors({});
     setEditingCatch(null);
+  };
+
+  const fetchCoordinates = async () => {
+    if (!location) {
+      toast({
+        title: "Error",
+        description: "Please enter a location first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setLatitude(data[0].lat);
+        setLongitude(data[0].lon);
+        toast({
+          title: "Coordinates fetched",
+          description: "Latitude and longitude have been automatically filled.",
+        });
+      } else {
+        toast({
+          title: "Location not found",
+          description: "Unable to find coordinates for the given location.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch coordinates. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -131,37 +177,46 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
       </div>
       <div>
         <Label htmlFor="location">Location</Label>
-        <Input
-          id="location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Enter location"
-        />
+        <div className="flex space-x-2">
+          <Input
+            id="location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Enter location"
+            className="flex-grow"
+          />
+          <Button type="button" onClick={fetchCoordinates} variant="outline">
+            <MapPin className="h-4 w-4 mr-2" />
+            Get Coordinates
+          </Button>
+        </div>
         {errors.location && <p className="text-destructive text-sm mt-1">{errors.location}</p>}
       </div>
-      <div>
-        <Label htmlFor="latitude">Latitude</Label>
-        <Input
-          id="latitude"
-          value={latitude}
-          onChange={(e) => setLatitude(e.target.value)}
-          placeholder="Enter latitude"
-          type="number"
-          step="any"
-        />
-        {errors.latitude && <p className="text-destructive text-sm mt-1">{errors.latitude}</p>}
-      </div>
-      <div>
-        <Label htmlFor="longitude">Longitude</Label>
-        <Input
-          id="longitude"
-          value={longitude}
-          onChange={(e) => setLongitude(e.target.value)}
-          placeholder="Enter longitude"
-          type="number"
-          step="any"
-        />
-        {errors.longitude && <p className="text-destructive text-sm mt-1">{errors.longitude}</p>}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="latitude">Latitude</Label>
+          <Input
+            id="latitude"
+            value={latitude}
+            onChange={(e) => setLatitude(e.target.value)}
+            placeholder="Enter latitude"
+            type="number"
+            step="any"
+          />
+          {errors.latitude && <p className="text-destructive text-sm mt-1">{errors.latitude}</p>}
+        </div>
+        <div>
+          <Label htmlFor="longitude">Longitude</Label>
+          <Input
+            id="longitude"
+            value={longitude}
+            onChange={(e) => setLongitude(e.target.value)}
+            placeholder="Enter longitude"
+            type="number"
+            step="any"
+          />
+          {errors.longitude && <p className="text-destructive text-sm mt-1">{errors.longitude}</p>}
+        </div>
       </div>
       <div>
         <Label htmlFor="description">Description</Label>
