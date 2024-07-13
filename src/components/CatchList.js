@@ -65,7 +65,12 @@ export default function CatchList({ catches, currentPage, catchesPerPage, totalC
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>{catchItem.location}</CardTitle>
-                  <Button variant="ghost" onClick={() => toggleExpand(catchItem.id)}>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => toggleExpand(catchItem.id)}
+                    aria-expanded={expandedCatch === catchItem.id}
+                    aria-controls={`catch-details-${catchItem.id}`}
+                  >
                     {expandedCatch === catchItem.id ? <ChevronUp /> : <ChevronDown />}
                   </Button>
                 </div>
@@ -73,7 +78,7 @@ export default function CatchList({ catches, currentPage, catchesPerPage, totalC
               </CardHeader>
               <CardContent>
                 <div className="aspect-w-16 aspect-h-9 mb-4">
-                  <img src={catchItem.image} alt="Catch" className="object-cover rounded-md w-full h-48" />
+                  <img src={catchItem.image} alt={`Catch at ${catchItem.location}`} className="object-cover rounded-md w-full h-48" />
                 </div>
                 <p className="text-sm text-muted-foreground">{catchItem.description}</p>
                 <div className="mt-2">
@@ -97,32 +102,39 @@ export default function CatchList({ catches, currentPage, catchesPerPage, totalC
                   </Button>
                 </div>
               </CardFooter>
-              {expandedCatch === catchItem.id && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <CatchDetails catchItem={catchItem} />
-                </motion.div>
-              )}
+              <AnimatePresence>
+                {expandedCatch === catchItem.id && (
+                  <motion.div
+                    id={`catch-details-${catchItem.id}`}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <CatchDetails catchItem={catchItem} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Card>
           </motion.div>
         ))}
       </AnimatePresence>
-      <div className="flex justify-center mt-4">
-        {pageNumbers.map(number => (
-          <Button
-            key={number}
-            onClick={() => paginate(number)}
-            variant={currentPage === number ? "default" : "outline"}
-            className="mx-1"
-          >
-            {number}
-          </Button>
-        ))}
-      </div>
+      <nav aria-label="Catch list pagination">
+        <ul className="flex justify-center mt-4">
+          {pageNumbers.map(number => (
+            <li key={number}>
+              <Button
+                onClick={() => paginate(number)}
+                variant={currentPage === number ? "default" : "outline"}
+                className="mx-1"
+                aria-current={currentPage === number ? "page" : undefined}
+              >
+                {number}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </nav>
       <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
