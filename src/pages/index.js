@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import CatchForm from '@/components/CatchForm';
 import CatchList from '@/components/CatchList';
@@ -13,58 +13,18 @@ import PhotoGallery from '@/components/PhotoGallery';
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCatches } from '@/hooks/useCatches';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 export default function Home() {
-  const [catches, setCatches] = useState([]);
+  const { catches, isLoading, addCatch, updateCatch, deleteCatch } = useCatches();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState({ from: null, to: null });
   const [editingCatch, setEditingCatch] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const catchesPerPage = 5;
-
-  useEffect(() => {
-    const savedCatches = localStorage.getItem('fishingCatches');
-    if (savedCatches) {
-      setCatches(JSON.parse(savedCatches));
-    }
-    setIsLoading(false);
-  }, []);
-
-  const addCatch = (newCatch) => {
-    const updatedCatches = [newCatch, ...catches];
-    setCatches(updatedCatches);
-    localStorage.setItem('fishingCatches', JSON.stringify(updatedCatches));
-    toast({
-      title: "Catch added",
-      description: "Your catch has been successfully logged.",
-    });
-  };
-
-  const updateCatch = (updatedCatch) => {
-    const updatedCatches = catches.map(c => c.id === updatedCatch.id ? updatedCatch : c);
-    setCatches(updatedCatches);
-    localStorage.setItem('fishingCatches', JSON.stringify(updatedCatches));
-    setEditingCatch(null);
-    toast({
-      title: "Catch updated",
-      description: "Your catch has been successfully updated.",
-    });
-  };
-
-  const deleteCatch = (id) => {
-    const updatedCatches = catches.filter(c => c.id !== id);
-    setCatches(updatedCatches);
-    localStorage.setItem('fishingCatches', JSON.stringify(updatedCatches));
-    toast({
-      title: "Catch deleted",
-      description: "Your catch has been successfully deleted.",
-      variant: "destructive",
-    });
-  };
 
   const filteredCatches = catches.filter(c => 
     (c.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,6 +39,32 @@ export default function Home() {
   const currentCatches = filteredCatches.slice(indexOfFirstCatch, indexOfLastCatch);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleAddCatch = (newCatch) => {
+    addCatch(newCatch);
+    toast({
+      title: "Catch added",
+      description: "Your catch has been successfully logged.",
+    });
+  };
+
+  const handleUpdateCatch = (updatedCatch) => {
+    updateCatch(updatedCatch);
+    setEditingCatch(null);
+    toast({
+      title: "Catch updated",
+      description: "Your catch has been successfully updated.",
+    });
+  };
+
+  const handleDeleteCatch = (id) => {
+    deleteCatch(id);
+    toast({
+      title: "Catch deleted",
+      description: "Your catch has been successfully deleted.",
+      variant: "destructive",
+    });
+  };
 
   return (
     <motion.div 
@@ -107,8 +93,8 @@ export default function Home() {
           >
             <h2 className="text-2xl font-semibold mb-4">{editingCatch ? 'Edit Catch' : 'Log a New Catch'}</h2>
             <CatchForm 
-              onAddCatch={addCatch} 
-              onUpdateCatch={updateCatch}
+              onAddCatch={handleAddCatch} 
+              onUpdateCatch={handleUpdateCatch}
               editingCatch={editingCatch}
               setEditingCatch={setEditingCatch}
             />
@@ -148,7 +134,7 @@ export default function Home() {
                       catchesPerPage={catchesPerPage}
                       totalCatches={filteredCatches.length}
                       paginate={paginate}
-                      onDelete={deleteCatch}
+                      onDelete={handleDeleteCatch}
                       onEdit={setEditingCatch}
                     />
                   )}
