@@ -6,7 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X, Upload } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const commonTags = ['Bass', 'Trout', 'Salmon', 'Catfish', 'Pike', 'Perch', 'Carp', 'Sunny', 'Rainy', 'Lakeshore', 'River', 'Ocean'];
 
 export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, setEditingCatch }) {
   const [image, setImage] = useState(null);
@@ -15,6 +19,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
   const [tags, setTags] = useState([]);
   const [currentTag, setCurrentTag] = useState('');
   const [errors, setErrors] = useState({});
+  const [openTagsPopover, setOpenTagsPopover] = useState(false);
 
   useEffect(() => {
     if (editingCatch) {
@@ -36,10 +41,11 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*', multiple: false });
 
-  const addTag = () => {
-    if (currentTag.trim() && !tags.includes(currentTag.trim())) {
-      setTags([...tags, currentTag.trim()]);
+  const addTag = (tag) => {
+    if (tag.trim() && !tags.includes(tag.trim())) {
+      setTags([...tags, tag.trim()]);
       setCurrentTag('');
+      setOpenTagsPopover(false);
     }
   };
 
@@ -135,23 +141,46 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
       </div>
       <div>
         <Label htmlFor="tags">Tags</Label>
-        <div className="flex items-center">
-          <Input
-            id="tags"
-            value={currentTag}
-            onChange={(e) => setCurrentTag(e.target.value)}
-            placeholder="Add a tag"
-            className="flex-grow"
-          />
-          <Button type="button" onClick={addTag} className="ml-2">Add Tag</Button>
-        </div>
+        <Popover open={openTagsPopover} onOpenChange={setOpenTagsPopover}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full justify-start">
+              {tags.length > 0 ? `${tags.length} tags selected` : "Select tags..."}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0">
+            <Command>
+              <CommandInput placeholder="Search tags..." />
+              <CommandEmpty>No tag found.</CommandEmpty>
+              <CommandGroup>
+                {commonTags.map((tag) => (
+                  <CommandItem
+                    key={tag}
+                    onSelect={() => addTag(tag)}
+                  >
+                    {tag}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
         <div className="mt-2 flex flex-wrap gap-2">
-          {tags.map((tag, index) => (
-            <Badge key={index} variant="secondary" className="flex items-center">
-              {tag}
-              <X className="ml-1 h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
-            </Badge>
-          ))}
+          <AnimatePresence>
+            {tags.map((tag, index) => (
+              <motion.div
+                key={tag}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Badge variant="secondary" className="flex items-center">
+                  {tag}
+                  <X className="ml-1 h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
+                </Badge>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
         {errors.tags && <p className="text-destructive text-sm mt-1">{errors.tags}</p>}
       </div>
