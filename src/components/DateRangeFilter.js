@@ -13,11 +13,11 @@ export default function DateRangeFilter({ dateRange, setDateRange }) {
 
   return (
     <div className="flex flex-col space-y-2 mb-4">
-      <Label>Filter by Date Range</Label>
+      <Label htmlFor="date-range">Filter by Date Range</Label>
       <div className="flex space-x-2">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-[240px] justify-start text-left font-normal">
+            <Button id="date-range" variant="outline" className="w-[240px] justify-start text-left font-normal">
               <CalendarIcon className="mr-2 h-4 w-4" />
               {dateRange.from ? format(dateRange.from, "PPP") : <span>From date</span>}
             </Button>
