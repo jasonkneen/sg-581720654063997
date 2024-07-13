@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button';
 export default function PhotoGallery({ catches }) {
   const [selectedImage, setSelectedImage] = useState(null);
 
+  if (!catches || catches.length === 0) {
+    return <div className="text-center py-8">No catches to display.</div>;
+  }
+
   return (
     <div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -21,6 +25,10 @@ export default function PhotoGallery({ catches }) {
               src={catchItem.image}
               alt={catchItem.description}
               className="w-full h-40 object-cover rounded-md"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/placeholder-image.jpg"; // Replace with an actual placeholder image path
+              }}
             />
           </motion.div>
         ))}
@@ -53,6 +61,10 @@ export default function PhotoGallery({ catches }) {
                 src={selectedImage.image}
                 alt={selectedImage.description}
                 className="w-full max-h-[70vh] object-contain mb-4"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder-image.jpg"; // Replace with an actual placeholder image path
+                }}
               />
               <h3 className="text-xl font-bold mb-2">{selectedImage.location}</h3>
               <p className="text-gray-600 mb-2">{selectedImage.description}</p>

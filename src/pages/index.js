@@ -8,11 +8,13 @@ import Statistics from '@/components/Statistics';
 import SearchBar from '@/components/SearchBar';
 import DateRangeFilter from '@/components/DateRangeFilter';
 import ExportButton from '@/components/ExportButton';
-import MapView from '@/components/MapView';
+import dynamic from 'next/dynamic';
 import PhotoGallery from '@/components/PhotoGallery';
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 export default function Home() {
   const [catches, setCatches] = useState([]);
