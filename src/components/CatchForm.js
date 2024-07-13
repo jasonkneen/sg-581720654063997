@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, Upload } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function CatchForm({ onAddCatch }) {
   const [image, setImage] = useState(null);
@@ -14,16 +16,16 @@ export default function CatchForm({ onAddCatch }) {
   const [currentTag, setCurrentTag] = useState('');
   const [errors, setErrors] = useState({});
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const onDrop = useCallback((acceptedFiles) => {
+    const file = acceptedFiles[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result);
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*', multiple: false });
 
   const addTag = () => {
     if (currentTag.trim() && !tags.includes(currentTag.trim())) {
@@ -68,12 +70,30 @@ export default function CatchForm({ onAddCatch }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <motion.form 
+      onSubmit={handleSubmit} 
+      className="space-y-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div>
         <Label htmlFor="image">Image</Label>
-        <Input id="image" type="file" accept="image/*" onChange={handleImageChange} />
-        {image && <img src={image} alt="Selected catch" className="mt-2 max-w-full h-auto rounded-md" />}
-        {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
+        <div 
+          {...getRootProps()} 
+          className={`border-2 border-dashed rounded-md p-4 text-center cursor-pointer ${isDragActive ? 'border-primary' : 'border-muted'}`}
+        >
+          <input {...getInputProps()} />
+          {image ? (
+            <img src={image} alt="Selected catch" className="mt-2 max-w-full h-auto rounded-md" />
+          ) : (
+            <div>
+              <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
+              <p className="mt-2">Drag 'n' drop an image here, or click to select one</p>
+            </div>
+          )}
+        </div>
+        {errors.image && <p className="text-destructive text-sm mt-1">{errors.image}</p>}
       </div>
       <div>
         <Label htmlFor="location">Location</Label>
@@ -83,7 +103,7 @@ export default function CatchForm({ onAddCatch }) {
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Enter location"
         />
-        {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+        {errors.location && <p className="text-destructive text-sm mt-1">{errors.location}</p>}
       </div>
       <div>
         <Label htmlFor="description">Description</Label>
@@ -93,7 +113,7 @@ export default function CatchForm({ onAddCatch }) {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe your catch"
         />
-        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+        {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
       </div>
       <div>
         <Label htmlFor="tags">Tags</Label>
@@ -115,9 +135,9 @@ export default function CatchForm({ onAddCatch }) {
             </Badge>
           ))}
         </div>
-        {errors.tags && <p className="text-red-500 text-sm mt-1">{errors.tags}</p>}
+        {errors.tags && <p className="text-destructive text-sm mt-1">{errors.tags}</p>}
       </div>
       <Button type="submit" className="w-full">Log Catch</Button>
-    </form>
+    </motion.form>
   );
 }
