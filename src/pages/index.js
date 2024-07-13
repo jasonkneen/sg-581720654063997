@@ -6,12 +6,18 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import ThemeToggle from '@/components/ThemeToggle';
 import Statistics from '@/components/Statistics';
 import SearchBar from '@/components/SearchBar';
+import DateRangeFilter from '@/components/DateRangeFilter';
 import { motion } from "framer-motion";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Home() {
   const [catches, setCatches] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
+  const [editingCatch, setEditingCatch] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   const catchesPerPage = 5;
 
   useEffect(() => {
@@ -19,24 +25,47 @@ export default function Home() {
     if (savedCatches) {
       setCatches(JSON.parse(savedCatches));
     }
+    setIsLoading(false);
   }, []);
 
   const addCatch = (newCatch) => {
     const updatedCatches = [newCatch, ...catches];
     setCatches(updatedCatches);
     localStorage.setItem('fishingCatches', JSON.stringify(updatedCatches));
+    toast({
+      title: "Catch added",
+      description: "Your catch has been successfully logged.",
+    });
+  };
+
+  const updateCatch = (updatedCatch) => {
+    const updatedCatches = catches.map(c => c.id === updatedCatch.id ? updatedCatch : c);
+    setCatches(updatedCatches);
+    localStorage.setItem('fishingCatches', JSON.stringify(updatedCatches));
+    setEditingCatch(null);
+    toast({
+      title: "Catch updated",
+      description: "Your catch has been successfully updated.",
+    });
   };
 
   const deleteCatch = (id) => {
     const updatedCatches = catches.filter(c => c.id !== id);
     setCatches(updatedCatches);
     localStorage.setItem('fishingCatches', JSON.stringify(updatedCatches));
+    toast({
+      title: "Catch deleted",
+      description: "Your catch has been successfully deleted.",
+      variant: "destructive",
+    });
   };
 
   const filteredCatches = catches.filter(c => 
-    c.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    c.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) &&
+    (!dateRange.from || new Date(c.date) >= dateRange.from) &&
+    (!dateRange.to || new Date(c.date) <= dateRange.to)
   );
 
   const indexOfLastCatch = currentPage * catchesPerPage;
@@ -67,8 +96,13 @@ export default function Home() {
             transition={{ delay: 0.2 }}
             className="bg-card p-6 rounded-lg shadow-md"
           >
-            <h2 className="text-2xl font-semibold mb-4">Log a New Catch</h2>
-            <CatchForm onAddCatch={addCatch} />
+            <h2 className="text-2xl font-semibold mb-4">{editingCatch ? 'Edit Catch' : 'Log a New Catch'}</h2>
+            <CatchForm 
+              onAddCatch={addCatch} 
+              onUpdateCatch={updateCatch}
+              editingCatch={editingCatch}
+              setEditingCatch={setEditingCatch}
+            />
           </motion.div>
         </ErrorBoundary>
         <ErrorBoundary>
@@ -80,14 +114,22 @@ export default function Home() {
           >
             <h2 className="text-2xl font-semibold mb-4">Your Catches</h2>
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-            <CatchList 
-              catches={currentCatches} 
-              currentPage={currentPage}
-              catchesPerPage={catchesPerPage}
-              totalCatches={filteredCatches.length}
-              paginate={paginate}
-              onDelete={deleteCatch}
-            />
+            <DateRangeFilter dateRange={dateRange} setDateRange={setDateRange} />
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <CatchList 
+                catches={currentCatches} 
+                currentPage={currentPage}
+                catchesPerPage={catchesPerPage}
+                totalCatches={filteredCatches.length}
+                paginate={paginate}
+                onDelete={deleteCatch}
+                onEdit={setEditingCatch}
+              />
+            )}
           </motion.div>
         </ErrorBoundary>
       </div>

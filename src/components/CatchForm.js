@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,22 @@ import { Badge } from "@/components/ui/badge";
 import { X, Upload } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function CatchForm({ onAddCatch }) {
+export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, setEditingCatch }) {
   const [image, setImage] = useState(null);
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState([]);
   const [currentTag, setCurrentTag] = useState('');
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (editingCatch) {
+      setImage(editingCatch.image);
+      setLocation(editingCatch.location);
+      setDescription(editingCatch.description);
+      setTags(editingCatch.tags);
+    }
+  }, [editingCatch]);
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -51,22 +60,31 @@ export default function CatchForm({ onAddCatch }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      const newCatch = {
-        id: Date.now(),
+      const catchData = {
+        id: editingCatch ? editingCatch.id : Date.now(),
         image,
         location,
         description,
         tags,
-        date: new Date().toISOString(),
+        date: editingCatch ? editingCatch.date : new Date().toISOString(),
       };
-      onAddCatch(newCatch);
-      setImage(null);
-      setLocation('');
-      setDescription('');
-      setTags([]);
-      setCurrentTag('');
-      setErrors({});
+      if (editingCatch) {
+        onUpdateCatch(catchData);
+      } else {
+        onAddCatch(catchData);
+      }
+      resetForm();
     }
+  };
+
+  const resetForm = () => {
+    setImage(null);
+    setLocation('');
+    setDescription('');
+    setTags([]);
+    setCurrentTag('');
+    setErrors({});
+    setEditingCatch(null);
   };
 
   return (
@@ -137,7 +155,16 @@ export default function CatchForm({ onAddCatch }) {
         </div>
         {errors.tags && <p className="text-destructive text-sm mt-1">{errors.tags}</p>}
       </div>
-      <Button type="submit" className="w-full">Log Catch</Button>
+      <div className="flex justify-between">
+        <Button type="submit" className="w-1/2">
+          {editingCatch ? 'Update Catch' : 'Log Catch'}
+        </Button>
+        {editingCatch && (
+          <Button type="button" variant="outline" className="w-1/3" onClick={resetForm}>
+            Cancel Edit
+          </Button>
+        )}
+      </div>
     </motion.form>
   );
 }
