@@ -21,7 +21,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [currentTag, setCurrentTag] = useState('');
-  const [errors, setErrors] = useState({});
+  const [formErrors, setFormErrors] = useState({});
   const [openTagsPopover, setOpenTagsPopover] = useState(false);
   const { toast } = useToast();
 
@@ -67,7 +67,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
     if (tags.length === 0) newErrors.tags = 'At least one tag is required';
     if (!latitude.trim()) newErrors.latitude = 'Latitude is required';
     if (!longitude.trim()) newErrors.longitude = 'Longitude is required';
-    setErrors(newErrors);
+    setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -109,7 +109,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
     setLatitude('');
     setLongitude('');
     setCurrentTag('');
-    setErrors({});
+    setFormErrors({});
     setEditingCatch(null);
   };
 
@@ -173,7 +173,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             </div>
           )}
         </div>
-        {errors.image && <p className="text-destructive text-sm mt-1" role="alert">{errors.image}</p>}
+        {formErrors.image && <p className="text-destructive text-sm mt-1" role="alert">{formErrors.image}</p>}
       </div>
       <div>
         <Label htmlFor="location">Location</Label>
@@ -191,7 +191,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             Get Coordinates
           </Button>
         </div>
-        {errors.location && <p className="text-destructive text-sm mt-1" role="alert">{errors.location}</p>}
+        {formErrors.location && <p className="text-destructive text-sm mt-1" role="alert">{formErrors.location}</p>}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -205,7 +205,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             step="any"
             aria-label="Enter latitude"
           />
-          {errors.latitude && <p className="text-destructive text-sm mt-1" role="alert">{errors.latitude}</p>}
+          {formErrors.latitude && <p className="text-destructive text-sm mt-1" role="alert">{formErrors.latitude}</p>}
         </div>
         <div>
           <Label htmlFor="longitude">Longitude</Label>
@@ -218,7 +218,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             step="any"
             aria-label="Enter longitude"
           />
-          {errors.longitude && <p className="text-destructive text-sm mt-1" role="alert">{errors.longitude}</p>}
+          {formErrors.longitude && <p className="text-destructive text-sm mt-1" role="alert">{formErrors.longitude}</p>}
         </div>
       </div>
       <div>
@@ -230,7 +230,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
           placeholder="Describe your catch"
           aria-label="Enter catch description"
         />
-        {errors.description && <p className="text-destructive text-sm mt-1" role="alert">{errors.description}</p>}
+        {formErrors.description && <p className="text-destructive text-sm mt-1" role="alert">{formErrors.description}</p>}
       </div>
       <div>
         <Label htmlFor="tags">Tags</Label>
@@ -275,7 +275,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             ))}
           </AnimatePresence>
         </div>
-        {errors.tags && <p className="text-destructive text-sm mt-1" role="alert">{errors.tags}</p>}
+        {formErrors.tags && <p className="text-destructive text-sm mt-1" role="alert">{formErrors.tags}</p>}
       </div>
       <div className="flex justify-between">
         <Button type="submit" className="w-1/2" aria-label={editingCatch ? 'Update Catch' : 'Log Catch'}>
