@@ -8,8 +8,11 @@ import Statistics from '@/components/Statistics';
 import SearchBar from '@/components/SearchBar';
 import DateRangeFilter from '@/components/DateRangeFilter';
 import ExportButton from '@/components/ExportButton';
+import MapView from '@/components/MapView';
+import PhotoGallery from '@/components/PhotoGallery';
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Home() {
   const [catches, setCatches] = useState([]);
@@ -119,28 +122,43 @@ export default function Home() {
             <h2 className="text-2xl font-semibold mb-4">Your Catches</h2>
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             <DateRangeFilter dateRange={dateRange} setDateRange={setDateRange} />
-            <AnimatePresence>
-              {isLoading ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex justify-center items-center h-64"
-                >
-                  <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-                </motion.div>
-              ) : (
-                <CatchList 
-                  catches={currentCatches} 
-                  currentPage={currentPage}
-                  catchesPerPage={catchesPerPage}
-                  totalCatches={filteredCatches.length}
-                  paginate={paginate}
-                  onDelete={deleteCatch}
-                  onEdit={setEditingCatch}
-                />
-              )}
-            </AnimatePresence>
+            <Tabs defaultValue="list" className="mt-4">
+              <TabsList>
+                <TabsTrigger value="list">List</TabsTrigger>
+                <TabsTrigger value="map">Map</TabsTrigger>
+                <TabsTrigger value="gallery">Gallery</TabsTrigger>
+              </TabsList>
+              <TabsContent value="list">
+                <AnimatePresence>
+                  {isLoading ? (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex justify-center items-center h-64"
+                    >
+                      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+                    </motion.div>
+                  ) : (
+                    <CatchList 
+                      catches={currentCatches} 
+                      currentPage={currentPage}
+                      catchesPerPage={catchesPerPage}
+                      totalCatches={filteredCatches.length}
+                      paginate={paginate}
+                      onDelete={deleteCatch}
+                      onEdit={setEditingCatch}
+                    />
+                  )}
+                </AnimatePresence>
+              </TabsContent>
+              <TabsContent value="map">
+                <MapView catches={filteredCatches} />
+              </TabsContent>
+              <TabsContent value="gallery">
+                <PhotoGallery catches={filteredCatches} />
+              </TabsContent>
+            </Tabs>
           </motion.div>
         </ErrorBoundary>
       </div>
