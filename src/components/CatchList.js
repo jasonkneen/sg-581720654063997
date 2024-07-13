@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export default function CatchList({ catches, currentPage, catchesPerPage, totalCatches, paginate, onDelete }) {
+export default function CatchList({ catches, currentPage, catchesPerPage, totalCatches, paginate, onDelete, onEdit }) {
   const [deleteId, setDeleteId] = useState(null);
 
   const handleShare = (catchItem) => {
@@ -78,7 +78,7 @@ export default function CatchList({ catches, currentPage, catchesPerPage, totalC
                   <Share2 className="mr-2 h-4 w-4" /> Share
                 </Button>
                 <div>
-                  <Button variant="outline" className="mr-2">
+                  <Button variant="outline" className="mr-2" onClick={() => onEdit(catchItem)}>
                     <Edit className="mr-2 h-4 w-4" /> Edit
                   </Button>
                   <Button variant="destructive" onClick={() => handleDelete(catchItem.id)}>
