@@ -163,7 +163,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
           {...getRootProps()} 
           className={`border-2 border-dashed rounded-md p-4 text-center cursor-pointer ${isDragActive ? 'border-primary' : 'border-muted'}`}
         >
-          <input {...getInputProps()} />
+          <input {...getInputProps()} id="image" aria-label="Upload image" />
           {image ? (
             <img src={image} alt="Selected catch" className="mt-2 max-w-full h-auto rounded-md" />
           ) : (
@@ -173,7 +173,7 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             </div>
           )}
         </div>
-        {errors.image && <p className="text-destructive text-sm mt-1">{errors.image}</p>}
+        {errors.image && <p className="text-destructive text-sm mt-1" role="alert">{errors.image}</p>}
       </div>
       <div>
         <Label htmlFor="location">Location</Label>
@@ -184,13 +184,14 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Enter location"
             className="flex-grow"
+            aria-label="Enter location"
           />
-          <Button type="button" onClick={fetchCoordinates} variant="outline">
+          <Button type="button" onClick={fetchCoordinates} variant="outline" aria-label="Get coordinates">
             <MapPin className="h-4 w-4 mr-2" />
             Get Coordinates
           </Button>
         </div>
-        {errors.location && <p className="text-destructive text-sm mt-1">{errors.location}</p>}
+        {errors.location && <p className="text-destructive text-sm mt-1" role="alert">{errors.location}</p>}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -202,8 +203,9 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             placeholder="Enter latitude"
             type="number"
             step="any"
+            aria-label="Enter latitude"
           />
-          {errors.latitude && <p className="text-destructive text-sm mt-1">{errors.latitude}</p>}
+          {errors.latitude && <p className="text-destructive text-sm mt-1" role="alert">{errors.latitude}</p>}
         </div>
         <div>
           <Label htmlFor="longitude">Longitude</Label>
@@ -214,8 +216,9 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
             placeholder="Enter longitude"
             type="number"
             step="any"
+            aria-label="Enter longitude"
           />
-          {errors.longitude && <p className="text-destructive text-sm mt-1">{errors.longitude}</p>}
+          {errors.longitude && <p className="text-destructive text-sm mt-1" role="alert">{errors.longitude}</p>}
         </div>
       </div>
       <div>
@@ -225,14 +228,15 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe your catch"
+          aria-label="Enter catch description"
         />
-        {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
+        {errors.description && <p className="text-destructive text-sm mt-1" role="alert">{errors.description}</p>}
       </div>
       <div>
         <Label htmlFor="tags">Tags</Label>
         <Popover open={openTagsPopover} onOpenChange={setOpenTagsPopover}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" aria-label="Select tags">
               {tags.length > 0 ? `${tags.length} tags selected` : "Select tags..."}
             </Button>
           </PopoverTrigger>
@@ -265,20 +269,20 @@ export default function CatchForm({ onAddCatch, onUpdateCatch, editingCatch, set
               >
                 <Badge variant="secondary" className="flex items-center">
                   {tag}
-                  <X className="ml-1 h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
+                  <X className="ml-1 h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} aria-label={`Remove ${tag} tag`} />
                 </Badge>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
-        {errors.tags && <p className="text-destructive text-sm mt-1">{errors.tags}</p>}
+        {errors.tags && <p className="text-destructive text-sm mt-1" role="alert">{errors.tags}</p>}
       </div>
       <div className="flex justify-between">
-        <Button type="submit" className="w-1/2">
+        <Button type="submit" className="w-1/2" aria-label={editingCatch ? 'Update Catch' : 'Log Catch'}>
           {editingCatch ? 'Update Catch' : 'Log Catch'}
         </Button>
         {editingCatch && (
-          <Button type="button" variant="outline" className="w-1/3" onClick={resetForm}>
+          <Button type="button" variant="outline" className="w-1/3" onClick={resetForm} aria-label="Cancel Edit">
             Cancel Edit
           </Button>
         )}
