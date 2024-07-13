@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Share2, Trash2, Edit } from "lucide-react";
+import { Share2, Trash2, Edit, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertDialog,
@@ -14,9 +14,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import CatchDetails from './CatchDetails';
 
 export default function CatchList({ catches, currentPage, catchesPerPage, totalCatches, paginate, onDelete, onEdit }) {
   const [deleteId, setDeleteId] = useState(null);
+  const [expandedCatch, setExpandedCatch] = useState(null);
 
   const handleShare = (catchItem) => {
     const shareText = `Check out my fishing catch!\nLocation: ${catchItem.location}\nDescription: ${catchItem.description}\nTags: ${catchItem.tags.join(', ')}`;
@@ -39,6 +41,10 @@ export default function CatchList({ catches, currentPage, catchesPerPage, totalC
     setDeleteId(null);
   };
 
+  const toggleExpand = (id) => {
+    setExpandedCatch(expandedCatch === id ? null : id);
+  };
+
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(totalCatches / catchesPerPage); i++) {
     pageNumbers.push(i);
@@ -57,7 +63,12 @@ export default function CatchList({ catches, currentPage, catchesPerPage, totalC
           >
             <Card className="mb-4">
               <CardHeader>
-                <CardTitle>{catchItem.location}</CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle>{catchItem.location}</CardTitle>
+                  <Button variant="ghost" onClick={() => toggleExpand(catchItem.id)}>
+                    {expandedCatch === catchItem.id ? <ChevronUp /> : <ChevronDown />}
+                  </Button>
+                </div>
                 <CardDescription>{new Date(catchItem.date).toLocaleString()}</CardDescription>
               </CardHeader>
               <CardContent>
@@ -86,6 +97,16 @@ export default function CatchList({ catches, currentPage, catchesPerPage, totalC
                   </Button>
                 </div>
               </CardFooter>
+              {expandedCatch === catchItem.id && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <CatchDetails catchItem={catchItem} />
+                </motion.div>
+              )}
             </Card>
           </motion.div>
         ))}

@@ -3,10 +3,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 
 export default function DateRangeFilter({ dateRange, setDateRange }) {
+  const clearDateRange = () => {
+    setDateRange({ from: null, to: null });
+  };
+
   return (
     <div className="flex flex-col space-y-2 mb-4">
       <Label>Filter by Date Range</Label>
@@ -44,6 +48,9 @@ export default function DateRangeFilter({ dateRange, setDateRange }) {
             />
           </PopoverContent>
         </Popover>
+        <Button variant="ghost" onClick={clearDateRange} aria-label="Clear date range">
+          <X className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
