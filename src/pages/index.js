@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCatches } from '@/hooks/useCatches';
 import { useDateRangeFilter } from '@/hooks/useDateRangeFilter';
+import { logError, handleApiError } from '@/utils/errorHandler';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -40,29 +41,56 @@ export default function Home() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleAddCatch = (newCatch) => {
-    addCatch(newCatch);
-    toast({
-      title: "Catch added",
-      description: "Your catch has been successfully logged.",
-    });
+    try {
+      addCatch(newCatch);
+      toast({
+        title: "Catch added",
+        description: "Your catch has been successfully logged.",
+      });
+    } catch (error) {
+      logError(error);
+      toast({
+        title: "Error",
+        description: handleApiError(error),
+        variant: "destructive",
+      });
+    }
   };
 
   const handleUpdateCatch = (updatedCatch) => {
-    updateCatch(updatedCatch);
-    setEditingCatch(null);
-    toast({
-      title: "Catch updated",
-      description: "Your catch has been successfully updated.",
-    });
+    try {
+      updateCatch(updatedCatch);
+      setEditingCatch(null);
+      toast({
+        title: "Catch updated",
+        description: "Your catch has been successfully updated.",
+      });
+    } catch (error) {
+      logError(error);
+      toast({
+        title: "Error",
+        description: handleApiError(error),
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteCatch = (id) => {
-    deleteCatch(id);
-    toast({
-      title: "Catch deleted",
-      description: "Your catch has been successfully deleted.",
-      variant: "destructive",
-    });
+    try {
+      deleteCatch(id);
+      toast({
+        title: "Catch deleted",
+        description: "Your catch has been successfully deleted.",
+        variant: "destructive",
+      });
+    } catch (error) {
+      logError(error);
+      toast({
+        title: "Error",
+        description: handleApiError(error),
+        variant: "destructive",
+      });
+    }
   };
 
   return (
