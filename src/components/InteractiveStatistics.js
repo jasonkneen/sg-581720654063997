@@ -6,6 +6,12 @@ import { motion } from 'framer-motion';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
+// Custom XAxis component with default props as parameters
+const CustomXAxis = ({ dataKey = 'name', ...props }) => <XAxis dataKey={dataKey} {...props} />;
+
+// Custom YAxis component with default props as parameters
+const CustomYAxis = ({ ...props }) => <YAxis {...props} />;
+
 export default function InteractiveStatistics({ catches }) {
   const [activeTab, setActiveTab] = useState("monthly");
 
@@ -63,8 +69,8 @@ export default function InteractiveStatistics({ catches }) {
             <motion.div {...chartAnimation}>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={getMonthlyCatches()}>
-                  <XAxis dataKey="month" />
-                  <YAxis />
+                  <CustomXAxis dataKey="month" />
+                  <CustomYAxis />
                   <Tooltip />
                   <Bar dataKey="count" fill="#8884d8" />
                 </BarChart>
