@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,29 @@ const Popup = dynamic(
 );
 
 export default function CatchDetails({ catchItem }) {
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isMapLoaded) {
+        setMapError("Map is taking longer than expected to load. Please check your internet connection.");
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [isMapLoaded]);
+
   if (!catchItem) return null;
+
+  const handleMapLoad = () => {
+    setIsMapLoaded(true);
+  };
+
+  const handleMapError = (error) => {
+    console.error("Map loading error:", error);
+    setMapError("Failed to load the map. Please try again later.");
+  };
 
   return (
     <motion.div
@@ -61,10 +84,23 @@ export default function CatchDetails({ catchItem }) {
             </span>
           </div>
           <div className="h-64 mb-4 rounded-md overflow-hidden">
+            {!isMapLoaded && !mapError && (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                <p>Loading map...</p>
+              </div>
+            )}
+            {mapError && (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                <p className="text-red-500">{mapError}</p>
+              </div>
+            )}
             <MapContainer 
               center={[catchItem.latitude, catchItem.longitude]} 
               zoom={13} 
               style={{ height: '100%', width: '100%' }}
+              whenCreated={handleMapLoad}
+              whenReady={handleMapLoad}
+              attributionControl={false}
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -76,6 +112,9 @@ export default function CatchDetails({ catchItem }) {
                 </Popup>
               </Marker>
             </MapContainer>
+          </div>
+          <div className="sr-only">
+            This catch was made at {catchItem.location}, with coordinates: latitude {catchItem.latitude.toFixed(6)} and longitude {catchItem.longitude.toFixed(6)}.
           </div>
           <div className="flex flex-wrap gap-2">
             {catchItem.tags.map((tag, index) => (
