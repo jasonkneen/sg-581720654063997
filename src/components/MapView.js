@@ -29,7 +29,9 @@ const useMap = dynamic(
 
 function ChangeView({ center, zoom }) {
   const map = useMap();
-  map.setView(center, zoom);
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
   return null;
 }
 
@@ -48,9 +50,9 @@ export default function MapView({ catches }) {
     }
   }, [catches]);
 
-  const handleMarkerClick = useCallback((catch) => {
-    setActiveMarker(catch);
-    setMapCenter([catch.latitude, catch.longitude]);
+  const handleMarkerClick = useCallback((catchItem) => {
+    setActiveMarker(catchItem);
+    setMapCenter([catchItem.latitude, catchItem.longitude]);
     setMapZoom(13);
   }, []);
 
