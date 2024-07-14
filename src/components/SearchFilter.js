@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -7,31 +7,30 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
-export default function SearchFilter({ onFilter }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateRange, setDateRange] = useState({ from: null, to: null });
-  const [location, setLocation] = useState('');
-  const [species, setSpecies] = useState('');
+export default function SearchFilter({ filters, onUpdateFilters }) {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    onUpdateFilters({ [name]: value });
+  };
 
-  const handleFilter = () => {
-    onFilter({
-      searchTerm,
-      dateRange,
-      location,
-      species
+  const handleDateChange = (field) => (date) => {
+    onUpdateFilters({
+      dateRange: { ...filters.dateRange, [field]: date }
     });
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="search" aria-label="Filter catches">
       <div>
-        <Label htmlFor="search">Search</Label>
+        <Label htmlFor="searchTerm">Search</Label>
         <Input
-          id="search"
+          id="searchTerm"
+          name="searchTerm"
           type="text"
           placeholder="Search catches..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={filters.searchTerm}
+          onChange={handleInputChange}
+          aria-label="Search term for filtering catches"
         />
       </div>
       <div className="flex space-x-4">
@@ -39,20 +38,24 @@ export default function SearchFilter({ onFilter }) {
           <Label htmlFor="location">Location</Label>
           <Input
             id="location"
+            name="location"
             type="text"
             placeholder="Filter by location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            value={filters.location}
+            onChange={handleInputChange}
+            aria-label="Filter catches by location"
           />
         </div>
         <div className="flex-1">
           <Label htmlFor="species">Species</Label>
           <Input
             id="species"
+            name="species"
             type="text"
             placeholder="Filter by species"
-            value={species}
-            onChange={(e) => setSpecies(e.target.value)}
+            value={filters.species}
+            onChange={handleInputChange}
+            aria-label="Filter catches by species"
           />
         </div>
       </div>
@@ -61,9 +64,9 @@ export default function SearchFilter({ onFilter }) {
         <div className="flex space-x-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline">
-                {dateRange.from ? (
-                  format(dateRange.from, "PPP")
+              <Button variant="outline" aria-label="Select start date">
+                {filters.dateRange.from ? (
+                  format(filters.dateRange.from, "PPP")
                 ) : (
                   <span>Pick a start date</span>
                 )}
@@ -73,17 +76,17 @@ export default function SearchFilter({ onFilter }) {
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={dateRange.from}
-                onSelect={(date) => setDateRange((prev) => ({ ...prev, from: date }))}
+                selected={filters.dateRange.from}
+                onSelect={handleDateChange('from')}
                 initialFocus
               />
             </PopoverContent>
           </Popover>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline">
-                {dateRange.to ? (
-                  format(dateRange.to, "PPP")
+              <Button variant="outline" aria-label="Select end date">
+                {filters.dateRange.to ? (
+                  format(filters.dateRange.to, "PPP")
                 ) : (
                   <span>Pick an end date</span>
                 )}
@@ -93,15 +96,15 @@ export default function SearchFilter({ onFilter }) {
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={dateRange.to}
-                onSelect={(date) => setDateRange((prev) => ({ ...prev, to: date }))}
+                selected={filters.dateRange.to}
+                onSelect={handleDateChange('to')}
                 initialFocus
+                disabled={(date) => date < filters.dateRange.from}
               />
             </PopoverContent>
           </Popover>
         </div>
       </div>
-      <Button onClick={handleFilter}>Apply Filters</Button>
     </div>
   );
 }
