@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCatches } from '@/hooks/useCatches';
-import { useDateRangeFilter } from '@/hooks/useDateRangeFilter';
+import { useSearchFilter } from '@/hooks/useSearchFilter';
 import { logError, handleApiError } from '@/utils/errorHandler';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -30,27 +30,15 @@ function MapViewErrorBoundary(props) {
 
 export default function Home() {
   const { catches, isLoading, addCatch, updateCatch, deleteCatch } = useCatches();
-  const { dateRange, filteredCatches, updateDateRange } = useDateRangeFilter(catches);
+  const { filters, filteredCatches, updateFilters } = useSearchFilter(catches);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
   const [editingCatch, setEditingCatch] = useState(null);
   const { toast } = useToast();
   const catchesPerPage = 5;
 
-  const handleFilter = (filters) => {
-    // Implement filtering logic here
-    console.log('Filters applied:', filters);
-  };
-
-  const searchFilteredCatches = filteredCatches.filter(c => 
-    c.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
   const indexOfLastCatch = currentPage * catchesPerPage;
   const indexOfFirstCatch = indexOfLastCatch - catchesPerPage;
-  const currentCatches = searchFilteredCatches.slice(indexOfFirstCatch, indexOfLastCatch);
+  const currentCatches = filteredCatches.slice(indexOfFirstCatch, indexOfLastCatch);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -161,8 +149,8 @@ export default function Home() {
             className="mt-8 bg-card p-6 rounded-lg shadow-md"
           >
             <h2 className="text-2xl font-semibold mb-4">Your Catches</h2>
-            <SearchFilter onFilter={handleFilter} />
-            <DateRangeFilter dateRange={dateRange} setDateRange={updateDateRange} />
+            <SearchFilter filters={filters} onUpdateFilters={updateFilters} />
+            <DateRangeFilter dateRange={filters.dateRange} setDateRange={(newDateRange) => updateFilters({ dateRange: newDateRange })} />
             <Tabs defaultValue="list" className="mt-4">
               <TabsList>
                 <TabsTrigger value="list">List</TabsTrigger>
@@ -185,7 +173,7 @@ export default function Home() {
                       catches={currentCatches} 
                       currentPage={currentPage}
                       catchesPerPage={catchesPerPage}
-                      totalCatches={searchFilteredCatches.length}
+                      totalCatches={filteredCatches.length}
                       paginate={paginate}
                       onDelete={handleDeleteCatch}
                       onEdit={setEditingCatch}
@@ -195,11 +183,11 @@ export default function Home() {
               </TabsContent>
               <TabsContent value="map">
                 <MapViewErrorBoundary>
-                  <MapView catches={searchFilteredCatches} />
+                  <MapView catches={filteredCatches} />
                 </MapViewErrorBoundary>
               </TabsContent>
               <TabsContent value="gallery">
-                <PhotoGallery catches={searchFilteredCatches} />
+                <PhotoGallery catches={filteredCatches} />
               </TabsContent>
             </Tabs>
           </motion.div>
