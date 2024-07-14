@@ -16,7 +16,10 @@ export default function EditCatch({ catch: initialCatch, onUpdateCatch, onCancel
       
       const updatedCatch = {
         ...initialCatch,
-        ...formData
+        ...formData,
+        // If you're sending the image to a server, you might want to handle it differently
+        // For now, we'll just use the base64 string directly
+        image: formData.image
       };
       
       onUpdateCatch(updatedCatch);
