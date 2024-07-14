@@ -5,7 +5,7 @@ import CatchList from '@/components/CatchList';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ThemeToggle from '@/components/ThemeToggle';
 import InteractiveStatistics from '@/components/InteractiveStatistics';
-import SearchBar from '@/components/SearchBar';
+import SearchFilter from '@/components/SearchFilter';
 import DateRangeFilter from '@/components/DateRangeFilter';
 import ExportButton from '@/components/ExportButton';
 import RecentCatchesSummary from '@/components/RecentCatchesSummary';
@@ -20,6 +20,14 @@ import { logError, handleApiError } from '@/utils/errorHandler';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
+function MapViewErrorBoundary(props) {
+  return (
+    <ErrorBoundary fallback={<div>There was an error loading the map. Please try again later.</div>}>
+      {props.children}
+    </ErrorBoundary>
+  );
+}
+
 export default function Home() {
   const { catches, isLoading, addCatch, updateCatch, deleteCatch } = useCatches();
   const { dateRange, filteredCatches, updateDateRange } = useDateRangeFilter(catches);
@@ -28,6 +36,11 @@ export default function Home() {
   const [editingCatch, setEditingCatch] = useState(null);
   const { toast } = useToast();
   const catchesPerPage = 5;
+
+  const handleFilter = (filters) => {
+    // Implement filtering logic here
+    console.log('Filters applied:', filters);
+  };
 
   const searchFilteredCatches = filteredCatches.filter(c => 
     c.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -148,7 +161,7 @@ export default function Home() {
             className="mt-8 bg-card p-6 rounded-lg shadow-md"
           >
             <h2 className="text-2xl font-semibold mb-4">Your Catches</h2>
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            <SearchFilter onFilter={handleFilter} />
             <DateRangeFilter dateRange={dateRange} setDateRange={updateDateRange} />
             <Tabs defaultValue="list" className="mt-4">
               <TabsList>
@@ -181,7 +194,9 @@ export default function Home() {
                 </AnimatePresence>
               </TabsContent>
               <TabsContent value="map">
-                <MapView catches={searchFilteredCatches} />
+                <MapViewErrorBoundary>
+                  <MapView catches={searchFilteredCatches} />
+                </MapViewErrorBoundary>
               </TabsContent>
               <TabsContent value="gallery">
                 <PhotoGallery catches={searchFilteredCatches} />
