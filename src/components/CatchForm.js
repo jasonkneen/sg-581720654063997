@@ -19,6 +19,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
     date: new Date(),
     description: '',
     image: '',
+    imageAlt: '',
     latitude: '',
     longitude: '',
     tags: [],
@@ -34,6 +35,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
         date: new Date(initialCatch.date) || new Date(),
         description: initialCatch.description || '',
         image: initialCatch.image || '',
+        imageAlt: initialCatch.imageAlt || '',
         latitude: initialCatch.latitude || '',
         longitude: initialCatch.longitude || '',
         tags: initialCatch.tags || [],
@@ -76,6 +78,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
     if (!formData.location.trim()) newErrors.location = 'Location is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.image) newErrors.image = 'Image is required';
+    if (!formData.imageAlt.trim()) newErrors.imageAlt = 'Image alt text is required';
     if (!formData.latitude.trim()) newErrors.latitude = 'Latitude is required';
     if (!formData.longitude.trim()) newErrors.longitude = 'Longitude is required';
     if (formData.tags.length === 0) newErrors.tags = 'At least one tag is required';
@@ -206,7 +209,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
         >
           <input {...getInputProps()} id="image" aria-describedby="image-error" />
           {formData.image ? (
-            <img src={formData.image} alt="Selected catch" className="mt-2 max-w-full h-auto rounded-md" />
+            <img src={formData.image} alt={formData.imageAlt || "Selected catch"} className="mt-2 max-w-full h-auto rounded-md" />
           ) : (
             <div>
               <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -215,6 +218,19 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
           )}
         </div>
         {errors.image && <p id="image-error" className="text-red-500 text-sm mt-1" role="alert">{errors.image}</p>}
+      </div>
+
+      <div>
+        <Label htmlFor="imageAlt">Image Description (Alt Text)</Label>
+        <Input
+          id="imageAlt"
+          name="imageAlt"
+          value={formData.imageAlt}
+          onChange={handleChange}
+          placeholder="Describe the image for visually impaired users"
+          aria-describedby="imageAlt-error"
+        />
+        {errors.imageAlt && <p id="imageAlt-error" className="text-red-500 text-sm mt-1" role="alert">{errors.imageAlt}</p>}
       </div>
 
       <div>
