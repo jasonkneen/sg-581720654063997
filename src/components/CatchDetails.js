@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar } from "lucide-react";
+import { MapPin, Calendar, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Plus, Minus } from "lucide-react";
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
@@ -29,12 +29,16 @@ const useMap = dynamic(
 
 function KeyboardControls() {
   const map = useMap();
+  const [isActive, setIsActive] = useState(false);
   
   useEffect(() => {
     const handleKeyDown = (e) => {
       const panAmount = 50; // pixels
       const zoomAmount = 1;
       
+      setIsActive(true);
+      setTimeout(() => setIsActive(false), 200); // Reset after 200ms
+
       switch(e.key) {
         case 'ArrowUp':
           map.panBy([0, -panAmount]);
@@ -65,7 +69,19 @@ function KeyboardControls() {
     };
   }, [map]);
 
-  return null;
+  return (
+    <div className={`absolute top-2 left-2 bg-white p-2 rounded shadow ${isActive ? 'ring-2 ring-blue-500' : ''}`}>
+      <p className="text-sm font-bold mb-1">Keyboard Controls:</p>
+      <div className="grid grid-cols-3 gap-1">
+        <ArrowUp className="w-4 h-4" />
+        <ArrowDown className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4" />
+        <ArrowRight className="w-4 h-4" />
+        <Plus className="w-4 h-4" />
+        <Minus className="w-4 h-4" />
+      </div>
+    </div>
+  );
 }
 
 export default function CatchDetails({ catchItem }) {
@@ -131,7 +147,7 @@ export default function CatchDetails({ catchItem }) {
               Latitude: {catchItem.latitude.toFixed(6)}, Longitude: {catchItem.longitude.toFixed(6)}
             </span>
           </div>
-          <div className="h-64 mb-4 rounded-md overflow-hidden">
+          <div className="h-64 mb-4 rounded-md overflow-hidden relative">
             {!isMapLoaded && !mapError && (
               <div className="w-full h-full flex items-center justify-center bg-gray-200">
                 <p>Loading map...</p>
@@ -149,6 +165,7 @@ export default function CatchDetails({ catchItem }) {
               whenCreated={handleMapLoad}
               attributionControl={false}
               tabIndex="0"
+              className="focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
