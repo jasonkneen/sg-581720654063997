@@ -11,8 +11,8 @@ export default function PhotoGallery({ catches }) {
     return <div className="text-center py-8">No catches to display.</div>;
   }
 
-  const openLightbox = (catch, index) => {
-    setSelectedImage(catch);
+  const openLightbox = (catchItem, index) => {
+    setSelectedImage(catchItem);
     setCurrentIndex(index);
   };
 
