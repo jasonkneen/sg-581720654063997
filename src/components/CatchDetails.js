@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Plus, Minus, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
@@ -73,14 +74,23 @@ function KeyboardControls() {
 
   return (
     <div className="absolute top-2 left-2 z-[1000]">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setShowLegend(!showLegend)}
-        aria-label={showLegend ? "Hide keyboard controls" : "Show keyboard controls"}
-      >
-        <HelpCircle className="h-4 w-4" />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowLegend(!showLegend)}
+              aria-label={showLegend ? "Hide keyboard controls" : "Show keyboard controls"}
+            >
+              <HelpCircle className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{showLegend ? "Hide keyboard controls" : "Show keyboard controls"}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       {showLegend && (
         <div className={`mt-2 bg-white p-2 rounded shadow ${isActive ? 'ring-2 ring-blue-500' : ''}`}>
           <p className="text-sm font-bold mb-1">Keyboard Controls:</p>
