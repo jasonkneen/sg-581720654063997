@@ -23,8 +23,17 @@ export default function CatchDetails({ catchItem }) {
         </CardHeader>
         <CardContent>
           <div className="aspect-w-16 aspect-h-9 mb-4">
-            <img src={catchItem.image} alt="Catch" className="object-cover rounded-md w-full h-64" />
+            <img 
+              src={catchItem.image} 
+              alt={catchItem.imageAlt || `Catch at ${catchItem.location}`} 
+              className="object-cover rounded-md w-full h-64" 
+            />
           </div>
+          {catchItem.imageAlt && (
+            <p className="text-sm text-muted-foreground mb-4 italic">
+              Image description: {catchItem.imageAlt}
+            </p>
+          )}
           <p className="text-sm text-muted-foreground mb-4">{catchItem.description}</p>
           <div className="flex items-center mb-4">
             <MapPin className="mr-2 h-4 w-4" />
