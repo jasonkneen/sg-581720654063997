@@ -141,13 +141,14 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
             onChange={handleChange}
             placeholder="Enter catch location"
             className="flex-grow"
+            aria-describedby="location-error"
           />
-          <Button type="button" onClick={fetchCoordinates} variant="outline">
+          <Button type="button" onClick={fetchCoordinates} variant="outline" aria-label="Get coordinates for location">
             <MapPin className="h-4 w-4 mr-2" />
             Get Coordinates
           </Button>
         </div>
-        {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+        {errors.location && <p id="location-error" className="text-red-500 text-sm mt-1" role="alert">{errors.location}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -161,8 +162,9 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
             placeholder="Enter latitude"
             type="number"
             step="any"
+            aria-describedby="latitude-error"
           />
-          {errors.latitude && <p className="text-red-500 text-sm mt-1">{errors.latitude}</p>}
+          {errors.latitude && <p id="latitude-error" className="text-red-500 text-sm mt-1" role="alert">{errors.latitude}</p>}
         </div>
         <div>
           <Label htmlFor="longitude">Longitude</Label>
@@ -174,8 +176,9 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
             placeholder="Enter longitude"
             type="number"
             step="any"
+            aria-describedby="longitude-error"
           />
-          {errors.longitude && <p className="text-red-500 text-sm mt-1">{errors.longitude}</p>}
+          {errors.longitude && <p id="longitude-error" className="text-red-500 text-sm mt-1" role="alert">{errors.longitude}</p>}
         </div>
       </div>
 
@@ -187,8 +190,9 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
           value={formData.description}
           onChange={handleChange}
           placeholder="Describe your catch"
+          aria-describedby="description-error"
         />
-        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+        {errors.description && <p id="description-error" className="text-red-500 text-sm mt-1" role="alert">{errors.description}</p>}
       </div>
 
       <div>
@@ -196,8 +200,11 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
         <div 
           {...getRootProps()} 
           className={`border-2 border-dashed rounded-md p-4 text-center cursor-pointer ${isDragActive ? 'border-primary' : 'border-muted'}`}
+          role="button"
+          aria-label="Upload image"
+          tabIndex="0"
         >
-          <input {...getInputProps()} id="image" />
+          <input {...getInputProps()} id="image" aria-describedby="image-error" />
           {formData.image ? (
             <img src={formData.image} alt="Selected catch" className="mt-2 max-w-full h-auto rounded-md" />
           ) : (
@@ -207,14 +214,14 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
             </div>
           )}
         </div>
-        {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
+        {errors.image && <p id="image-error" className="text-red-500 text-sm mt-1" role="alert">{errors.image}</p>}
       </div>
 
       <div>
         <Label htmlFor="tags">Tags</Label>
         <Popover open={openTagsPopover} onOpenChange={setOpenTagsPopover}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" aria-haspopup="listbox" aria-expanded={openTagsPopover}>
               {formData.tags.length > 0 ? `${formData.tags.length} tags selected` : "Select tags..."}
             </Button>
           </PopoverTrigger>
@@ -227,6 +234,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
                   <CommandItem
                     key={tag}
                     onSelect={() => addTag(tag)}
+                    role="option"
                   >
                     {tag}
                   </CommandItem>
@@ -235,7 +243,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
             </Command>
           </PopoverContent>
         </Popover>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2" role="list" aria-label="Selected tags">
           <AnimatePresence>
             {formData.tags.map((tag, index) => (
               <motion.div
@@ -244,16 +252,17 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.2 }}
+                role="listitem"
               >
                 <Badge variant="secondary" className="flex items-center">
                   {tag}
-                  <X className="ml-1 h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
+                  <X className="ml-1 h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} aria-label={`Remove ${tag} tag`} />
                 </Badge>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
-        {errors.tags && <p className="text-red-500 text-sm mt-1">{errors.tags}</p>}
+        {errors.tags && <p id="tags-error" className="text-red-500 text-sm mt-1" role="alert">{errors.tags}</p>}
       </div>
 
       <div className="flex justify-end space-x-2">
