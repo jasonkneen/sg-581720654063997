@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Plus, Minus } from "lucide-react";
+import { MapPin, Calendar, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Plus, Minus, HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
@@ -30,6 +31,7 @@ const useMap = dynamic(
 function KeyboardControls() {
   const map = useMap();
   const [isActive, setIsActive] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -70,16 +72,28 @@ function KeyboardControls() {
   }, [map]);
 
   return (
-    <div className={`absolute top-2 left-2 bg-white p-2 rounded shadow ${isActive ? 'ring-2 ring-blue-500' : ''}`}>
-      <p className="text-sm font-bold mb-1">Keyboard Controls:</p>
-      <div className="grid grid-cols-3 gap-1">
-        <ArrowUp className="w-4 h-4" />
-        <ArrowDown className="w-4 h-4" />
-        <ArrowLeft className="w-4 h-4" />
-        <ArrowRight className="w-4 h-4" />
-        <Plus className="w-4 h-4" />
-        <Minus className="w-4 h-4" />
-      </div>
+    <div className="absolute top-2 left-2 z-[1000]">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setShowLegend(!showLegend)}
+        aria-label={showLegend ? "Hide keyboard controls" : "Show keyboard controls"}
+      >
+        <HelpCircle className="h-4 w-4" />
+      </Button>
+      {showLegend && (
+        <div className={`mt-2 bg-white p-2 rounded shadow ${isActive ? 'ring-2 ring-blue-500' : ''}`}>
+          <p className="text-sm font-bold mb-1">Keyboard Controls:</p>
+          <div className="grid grid-cols-3 gap-1">
+            <ArrowUp className="w-4 h-4" />
+            <ArrowDown className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4" />
+            <Plus className="w-4 h-4" />
+            <Minus className="w-4 h-4" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -181,7 +195,7 @@ export default function CatchDetails({ catchItem }) {
           </div>
           <div className="sr-only">
             This catch was made at {catchItem.location}, with coordinates: latitude {catchItem.latitude.toFixed(6)} and longitude {catchItem.longitude.toFixed(6)}.
-            Use arrow keys to pan the map, and plus/minus keys to zoom in and out.
+            Use arrow keys to pan the map, and plus/minus keys to zoom in and out. Press the help button to toggle keyboard control instructions.
           </div>
           <div className="flex flex-wrap gap-2">
             {catchItem.tags.map((tag, index) => (
