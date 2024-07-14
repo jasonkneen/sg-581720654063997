@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import Home from '@/components/Home';
-import AddCatch from '@/components/AddCatch';
-import EditCatch from '@/components/EditCatch';
+import CatchForm from '@/components/CatchForm';
+import CatchList from '@/components/CatchList';
 import ViewCatchPopup from '@/components/ViewCatchPopup';
 import DeleteConfirmation from '@/components/DeleteConfirmation';
 import { useCatches } from '@/hooks/useCatches';
@@ -60,7 +59,7 @@ export default function App() {
       {currentScreen === 'home' && (
         <>
           <Button onClick={() => setCurrentScreen('add')} className="mb-4">Add New Catch</Button>
-          <Home 
+          <CatchList 
             catches={catches} 
             onEdit={(catchItem) => {
               setSelectedCatch(catchItem);
@@ -73,14 +72,14 @@ export default function App() {
       )}
 
       {currentScreen === 'add' && (
-        <AddCatch 
+        <CatchForm 
           onAddCatch={handleAddCatch}
           onCancel={() => setCurrentScreen('home')}
         />
       )}
 
       {currentScreen === 'edit' && selectedCatch && (
-        <EditCatch 
+        <CatchForm 
           catch={selectedCatch}
           onUpdateCatch={handleUpdateCatch}
           onCancel={() => setCurrentScreen('home')}
