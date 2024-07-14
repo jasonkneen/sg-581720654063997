@@ -4,6 +4,7 @@ import Home from '@/components/Home';
 import AddCatch from '@/components/AddCatch';
 import EditCatch from '@/components/EditCatch';
 import ViewCatchPopup from '@/components/ViewCatchPopup';
+import DeleteConfirmation from '@/components/DeleteConfirmation';
 import { useCatches } from '@/hooks/useCatches';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -12,6 +13,7 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [selectedCatch, setSelectedCatch] = useState(null);
   const [isViewPopupOpen, setIsViewPopupOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { toast } = useToast();
 
   const handleAddCatch = (newCatch) => {
@@ -33,7 +35,13 @@ export default function App() {
   };
 
   const handleDeleteCatch = (id) => {
-    deleteCatch(id);
+    setSelectedCatch(catches.find(c => c.id === id));
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    deleteCatch(selectedCatch.id);
+    setIsDeleteConfirmOpen(false);
     toast({
       title: "Catch deleted",
       description: "Your catch has been successfully deleted.",
@@ -83,6 +91,13 @@ export default function App() {
         isOpen={isViewPopupOpen}
         onClose={() => setIsViewPopupOpen(false)}
         catch={selectedCatch}
+      />
+
+      <DeleteConfirmation
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        onConfirm={confirmDelete}
+        catchItem={selectedCatch}
       />
     </div>
   );
