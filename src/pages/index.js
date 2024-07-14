@@ -52,6 +52,19 @@ export default function App() {
     setIsViewPopupOpen(true);
   };
 
+  const handleEditCatch = (catchItem) => {
+    setSelectedCatch(catchItem);
+    setCurrentScreen('edit');
+  };
+
+  const handleShareCatch = (catchItem) => {
+    // For now, we'll just show a toast. In a real app, this would open a share dialog.
+    toast({
+      title: "Share feature",
+      description: `Sharing functionality for catch at ${catchItem.location} is not yet implemented.`,
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-center mb-8">Fishing Catch Logger</h1>
@@ -61,12 +74,10 @@ export default function App() {
           <Button onClick={() => setCurrentScreen('add')} className="mb-4">Add New Catch</Button>
           <CatchList 
             catches={catches} 
-            onEdit={(catchItem) => {
-              setSelectedCatch(catchItem);
-              setCurrentScreen('edit');
-            }}
+            onEdit={handleEditCatch}
             onDelete={handleDeleteCatch}
             onView={handleViewCatch}
+            onShare={handleShareCatch}
           />
         </>
       )}
@@ -90,6 +101,8 @@ export default function App() {
         isOpen={isViewPopupOpen}
         onClose={() => setIsViewPopupOpen(false)}
         catch={selectedCatch}
+        onEdit={handleEditCatch}
+        onShare={handleShareCatch}
       />
 
       <DeleteConfirmation
