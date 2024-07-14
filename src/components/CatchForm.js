@@ -19,6 +19,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
     longitude: '',
   });
   const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState('');
 
   useEffect(() => {
     if (initialCatch) {
@@ -31,6 +32,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
         latitude: initialCatch.latitude || '',
         longitude: initialCatch.longitude || '',
       });
+      setImagePreview(initialCatch.image || '');
     }
   }, [initialCatch]);
 
@@ -40,6 +42,10 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
     // Clear the error for this field when the user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    // Update image preview if the image URL changes
+    if (name === 'image') {
+      setImagePreview(value);
     }
   };
 
@@ -130,6 +136,11 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
           placeholder="Enter image URL"
         />
         {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
+        {imagePreview && (
+          <div className="mt-2">
+            <img src={imagePreview} alt="Preview" className="max-w-full h-auto rounded-md" />
+          </div>
+        )}
       </div>
 
       <div>
