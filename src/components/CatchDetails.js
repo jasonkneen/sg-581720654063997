@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,10 +22,56 @@ const Popup = dynamic(
   () => import('react-leaflet').then((mod) => mod.Popup),
   { ssr: false }
 );
+const useMap = dynamic(
+  () => import('react-leaflet').then((mod) => mod.useMap),
+  { ssr: false }
+);
+
+function KeyboardControls() {
+  const map = useMap();
+  
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const panAmount = 50; // pixels
+      const zoomAmount = 1;
+      
+      switch(e.key) {
+        case 'ArrowUp':
+          map.panBy([0, -panAmount]);
+          break;
+        case 'ArrowDown':
+          map.panBy([0, panAmount]);
+          break;
+        case 'ArrowLeft':
+          map.panBy([-panAmount, 0]);
+          break;
+        case 'ArrowRight':
+          map.panBy([panAmount, 0]);
+          break;
+        case '+':
+          map.zoomIn(zoomAmount);
+          break;
+        case '-':
+          map.zoomOut(zoomAmount);
+          break;
+      }
+    };
+
+    map.getContainer().focus();
+    map.getContainer().addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      map.getContainer().removeEventListener('keydown', handleKeyDown);
+    };
+  }, [map]);
+
+  return null;
+}
 
 export default function CatchDetails({ catchItem }) {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(null);
+  const mapRef = useRef(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,8 +85,10 @@ export default function CatchDetails({ catchItem }) {
 
   if (!catchItem) return null;
 
-  const handleMapLoad = () => {
+  const handleMapLoad = (map) => {
     setIsMapLoaded(true);
+    mapRef.current = map;
+    map.getContainer().focus();
   };
 
   const handleMapError = (error) => {
@@ -99,8 +147,8 @@ export default function CatchDetails({ catchItem }) {
               zoom={13} 
               style={{ height: '100%', width: '100%' }}
               whenCreated={handleMapLoad}
-              whenReady={handleMapLoad}
               attributionControl={false}
+              tabIndex="0"
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -111,10 +159,12 @@ export default function CatchDetails({ catchItem }) {
                   {catchItem.location}
                 </Popup>
               </Marker>
+              <KeyboardControls />
             </MapContainer>
           </div>
           <div className="sr-only">
             This catch was made at {catchItem.location}, with coordinates: latitude {catchItem.latitude.toFixed(6)} and longitude {catchItem.longitude.toFixed(6)}.
+            Use arrow keys to pan the map, and plus/minus keys to zoom in and out.
           </div>
           <div className="flex flex-wrap gap-2">
             {catchItem.tags.map((tag, index) => (
