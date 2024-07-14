@@ -69,9 +69,18 @@ export default function CatchList({ catches, currentPage, catchesPerPage, totalC
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="aspect-w-16 aspect-h-9 mb-4">
-                    <img src={catchItem.image} alt={`Catch at ${catchItem.location}`} className="object-cover rounded-md w-full h-48" />
+                    <img 
+                      src={catchItem.image} 
+                      alt={catchItem.imageAlt || `Catch at ${catchItem.location}`} 
+                      className="object-cover rounded-md w-full h-48" 
+                    />
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">{catchItem.description}</p>
+                  {catchItem.imageAlt && (
+                    <p className="text-xs text-muted-foreground mb-2 italic">
+                      Image: {catchItem.imageAlt.length > 50 ? `${catchItem.imageAlt.substring(0, 50)}...` : catchItem.imageAlt}
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-1">
                     {catchItem.tags.map((tag, index) => (
                       <Badge key={index} variant="secondary">
