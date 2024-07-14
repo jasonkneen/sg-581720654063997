@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,7 +27,7 @@ const Popup = dynamic(
   { ssr: false }
 );
 const MarkerClusterGroup = dynamic(
-  () => import('react-leaflet-markercluster').then((mod) => mod.default),
+  () => import('react-leaflet-markercluster'),
   { ssr: false }
 );
 
