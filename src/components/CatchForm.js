@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -20,6 +21,8 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
   });
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState('');
+  const [imageError, setImageError] = useState('');
+  const [isImageLoading, setIsImageLoading] = useState(false);
 
   useEffect(() => {
     if (initialCatch) {
@@ -45,7 +48,28 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
     }
     // Update image preview if the image URL changes
     if (name === 'image') {
-      setImagePreview(value);
+      updateImagePreview(value);
+    }
+  };
+
+  const updateImagePreview = (url) => {
+    if (url) {
+      setIsImageLoading(true);
+      setImageError('');
+      const img = new Image();
+      img.onload = () => {
+        setImagePreview(url);
+        setIsImageLoading(false);
+      };
+      img.onerror = () => {
+        setImageError('Failed to load image. Please check the URL.');
+        setIsImageLoading(false);
+        setImagePreview('');
+      };
+      img.src = url;
+    } else {
+      setImagePreview('');
+      setImageError('');
     }
   };
 
@@ -64,6 +88,7 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
     if (!formData.imageAlt.trim()) newErrors.imageAlt = 'Image alt text is required';
     if (!formData.latitude.trim()) newErrors.latitude = 'Latitude is required';
     if (!formData.longitude.trim()) newErrors.longitude = 'Longitude is required';
+    if (imageError) newErrors.image = imageError;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -136,10 +161,17 @@ export default function CatchForm({ initialCatch, onSubmit, onCancel }) {
           placeholder="Enter image URL"
         />
         {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
+        {isImageLoading && <p className="text-blue-500 text-sm mt-1">Loading image...</p>}
         {imagePreview && (
           <div className="mt-2">
             <img src={imagePreview} alt="Preview" className="max-w-full h-auto rounded-md" />
           </div>
+        )}
+        {imageError && (
+          <Alert variant="destructive" className="mt-2">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{imageError}</AlertDescription>
+          </Alert>
         )}
       </div>
 
